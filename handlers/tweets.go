@@ -20,20 +20,37 @@ func TweetsHandler(service TimelineProcessor) http.HandlerFunc {
 		twitterUserId, err := strconv.ParseInt(userId, 10, 64)
 
 		if err != nil {
-			writer.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(writer).Encode([]byte("invalid user id in URL"))
+			sendErrorResponse(writer, http.StatusBadRequest, "invalid user id in URL")
 			return
 		}
 
 		tweets, timelineErr := service.GetTimeLine(twitterUserId)
 
 		if timelineErr != nil {
-			writer.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(writer).Encode([]byte(timelineErr.Error()))
+			sendErrorResponse(writer, http.StatusBadRequest, timelineErr.Error())
 			return
 		}
 
-		writer.WriteHeader(http.StatusOK)
-		json.NewEncoder(writer).Encode(tweets)
+		sendResponseData(writer, tweets)
 	}
+}
+
+func sendErrorResponse(writer http.ResponseWriter, statusCode int, errorMessage string) {
+	writer.WriteHeader(statusCode)
+	writer.Write([]byte(errorMessage))
+	return
+}
+
+func sendResponseData(writer http.ResponseWriter, tweets []twitter.Tweet) {
+	response, jsonErr := json.Marshal(tweets)
+
+	if jsonErr != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		writer.Write([]byte(jsonErr.Error()))
+		return
+	}
+
+	writer.WriteHeader(http.StatusOK)
+	writer.Header().Set("Content-Type", "application/json")
+	writer.Write(response)
 }

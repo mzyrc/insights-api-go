@@ -20,19 +20,27 @@ func (m MockTimelineProcessor) GetTimeLine(userId int64) ([]twitter.Tweet, error
 func TestTweetsHandler(t *testing.T) {
 	testCases := []struct {
 		description        string
+		url                string
 		expectedStatusCode int
 		expectedBody       string
 	}{
 		{
 			description:        "Should return a list of tweets",
+			url:                "/user/12345/tweets",
 			expectedStatusCode: http.StatusOK,
-			expectedBody:       "[{\"coordinates\":null,\"created_at\":\"\",\"current_user_retweet\":null,\"entities\":null,\"favorite_count\":0,\"favorited\":false,\"filter_level\":\"\",\"id\":0,\"id_str\":\"\",\"in_reply_to_screen_name\":\"\",\"in_reply_to_status_id\":0,\"in_reply_to_status_id_str\":\"\",\"in_reply_to_user_id\":0,\"in_reply_to_user_id_str\":\"\",\"lang\":\"\",\"possibly_sensitive\":false,\"quote_count\":0,\"reply_count\":0,\"retweet_count\":0,\"retweeted\":false,\"retweeted_status\":null,\"source\":\"\",\"scopes\":null,\"text\":\"\",\"full_text\":\"\",\"display_text_range\":[0,0],\"place\":null,\"truncated\":false,\"user\":null,\"withheld_copyright\":false,\"withheld_in_countries\":null,\"withheld_scope\":\"\",\"extended_entities\":null,\"extended_tweet\":null,\"quoted_status_id\":0,\"quoted_status_id_str\":\"\",\"quoted_status\":null}]\n",
+			expectedBody:       "[{\"coordinates\":null,\"created_at\":\"\",\"current_user_retweet\":null,\"entities\":null,\"favorite_count\":0,\"favorited\":false,\"filter_level\":\"\",\"id\":0,\"id_str\":\"\",\"in_reply_to_screen_name\":\"\",\"in_reply_to_status_id\":0,\"in_reply_to_status_id_str\":\"\",\"in_reply_to_user_id\":0,\"in_reply_to_user_id_str\":\"\",\"lang\":\"\",\"possibly_sensitive\":false,\"quote_count\":0,\"reply_count\":0,\"retweet_count\":0,\"retweeted\":false,\"retweeted_status\":null,\"source\":\"\",\"scopes\":null,\"text\":\"\",\"full_text\":\"\",\"display_text_range\":[0,0],\"place\":null,\"truncated\":false,\"user\":null,\"withheld_copyright\":false,\"withheld_in_countries\":null,\"withheld_scope\":\"\",\"extended_entities\":null,\"extended_tweet\":null,\"quoted_status_id\":0,\"quoted_status_id_str\":\"\",\"quoted_status\":null}]",
+		},
+		{
+			description:        "Should return an error when the userId is invalid",
+			url:                "/user/abcd1234/tweets",
+			expectedStatusCode: http.StatusBadRequest,
+			expectedBody:       "invalid user id in URL",
 		},
 	}
 
 	for _, testCase := range testCases {
 		t.Run(testCase.description, func(t *testing.T) {
-			request, _ := http.NewRequest(http.MethodGet, "/user/12345/tweets", nil)
+			request, _ := http.NewRequest(http.MethodGet, testCase.url, nil)
 
 			rr := httptest.NewRecorder()
 

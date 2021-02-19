@@ -50,7 +50,7 @@ func sendResponseData(writer http.ResponseWriter, tweets []twitter.Tweet) {
 		return
 	}
 
-	writer.WriteHeader(http.StatusOK)
 	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
 	writer.Write(response)
 }

@@ -29,9 +29,20 @@ func (s ServiceWrapper) UserTimeline(params TimelineConfig) ([]twitter.Tweet, *h
 
 func (s ServiceWrapper) Search(screenName string) ([]twitter.User, *http.Response, error) {
 	return s.client.Users.Search(screenName, &twitter.UserSearchParams{
-		Query:           screenName,
+		Query: screenName,
 		//Page:            0,
 		//Count:           0,
 		//IncludeEntities: nil,
+	})
+}
+
+func (s ServiceWrapper) GetFriends(nextPageId int64) (*twitter.Friends, *http.Response, error) {
+	return s.client.Friends.List(&twitter.FriendListParams{
+		UserID:              0,
+		//ScreenName:          "",
+		Cursor:              nextPageId,
+		//Count:               0,
+		//SkipStatus:          nil,
+		//IncludeUserEntities: nil,
 	})
 }

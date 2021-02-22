@@ -31,7 +31,7 @@ func TestTimelineService_GetTimeLine(t *testing.T) {
 		},
 	}
 
-	service := TimelineService{client: mockTimeLineService}
+	service := Timeline{client: mockTimeLineService}
 
 	_, err := service.GetTimeLine(1)
 
@@ -77,7 +77,7 @@ func TestTimelineService_GetTimeLine_Error(t *testing.T) {
 				mockGetTimeLine: testCase.mockTimelineFn,
 			}
 
-			service := TimelineService{client: mockTimeLineService}
+			service := Timeline{client: mockTimeLineService}
 
 			_, err := service.GetTimeLine(1)
 

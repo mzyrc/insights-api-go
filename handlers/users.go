@@ -7,15 +7,16 @@ import (
 	"net/http"
 )
 
-type UserProcessor interface {
+type UserService interface {
 	Search(screenName string) (users []twitter.User, err error)
+	GetFollowingList() ([]twitter.User, error)
 }
 
 type UserSearchParams struct {
 	ScreenName string `json:"screen_name"`
 }
 
-func UsersHandler(service UserProcessor) http.HandlerFunc {
+func UsersHandler(service UserService) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		decoder := json.NewDecoder(request.Body)
 		var postBody UserSearchParams
@@ -46,6 +47,23 @@ func UsersHandler(service UserProcessor) http.HandlerFunc {
 		response, _ := json.Marshal(users)
 		writer.Header().Set("Content-Type", "application/json")
 		writer.WriteHeader(http.StatusOK)
+		writer.Write(response)
+	}
+}
+
+func FollowedUsersHandler(service UserService) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		followedUsers, _ := service.GetFollowingList()
+
+		users := make([]adapters.LocalUser, len(followedUsers))
+
+		for index, user := range followedUsers {
+			users[index] = adapters.NewUser(user).ToLocalUser()
+		}
+
+		response, _ := json.Marshal(users)
+
+		writer.Header().Set("Content-Type", "application/json")
 		writer.Write(response)
 	}
 }

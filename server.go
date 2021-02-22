@@ -36,4 +36,5 @@ func (s *Server) registerRouteHandlers() {
 
 	s.router.HandleFunc("/user/{userId}/tweets", handlers.TweetsHandler(timeline)).Methods(http.MethodGet)
 	s.router.HandleFunc("/users/query", handlers.UsersHandler(users)).Methods(http.MethodPost)
+	s.router.HandleFunc("/users/tracking", handlers.FollowedUsersHandler(users)).Methods(http.MethodGet)
 }

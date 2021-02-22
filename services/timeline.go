@@ -11,19 +11,19 @@ type TimelineConfig struct {
 	UserId int64
 }
 
-type TimelineProcessor interface {
+type TwitterTimelineClient interface {
 	UserTimeline(config TimelineConfig) ([]twitter.Tweet, *http.Response, error)
 }
 
-func NewTimelineService(client TimelineProcessor) *TimelineService {
-	return &TimelineService{client: client}
+func NewTimelineService(client TwitterTimelineClient) *Timeline {
+	return &Timeline{client: client}
 }
 
-type TimelineService struct {
-	client TimelineProcessor
+type Timeline struct {
+	client TwitterTimelineClient
 }
 
-func (t TimelineService) GetTimeLine(userId int64) ([]twitter.Tweet, error) {
+func (t Timeline) GetTimeLine(userId int64) ([]twitter.Tweet, error) {
 	tweets, httpResponse, err := t.client.UserTimeline(TimelineConfig{UserId: userId})
 
 	if err != nil {

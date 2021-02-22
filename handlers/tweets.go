@@ -8,11 +8,11 @@ import (
 	"strconv"
 )
 
-type TimelineProcessor interface {
+type TimelineService interface {
 	GetTimeLine(userId int64) ([]twitter.Tweet, error)
 }
 
-func TweetsHandler(service TimelineProcessor) http.HandlerFunc {
+func TweetsHandler(service TimelineService) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		requestVariables := mux.Vars(request)
 		userId := requestVariables["userId"]

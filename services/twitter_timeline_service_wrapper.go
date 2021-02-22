@@ -26,3 +26,12 @@ func (s ServiceWrapper) UserTimeline(params TimelineConfig) ([]twitter.Tweet, *h
 		//TweetMode:       "",
 	})
 }
+
+func (s ServiceWrapper) Search(screenName string) ([]twitter.User, *http.Response, error) {
+	return s.client.Users.Search(screenName, &twitter.UserSearchParams{
+		Query:           screenName,
+		//Page:            0,
+		//Count:           0,
+		//IncludeEntities: nil,
+	})
+}

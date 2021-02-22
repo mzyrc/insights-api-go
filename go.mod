@@ -7,4 +7,5 @@ require (
 	github.com/dghubble/oauth1 v0.7.0
 	github.com/gorilla/mux v1.8.0
 	github.com/joho/godotenv v1.3.0
+	github.com/rs/cors v1.7.0
 )

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"insights-api/handlers"
 	"insights-api/services"
 	"log"
@@ -22,12 +23,17 @@ func (s Server) Start() error {
 	s.registerRouteHandlers()
 
 	log.Println("Server started on port 8000")
-	return http.ListenAndServe(":8000", s.router)
+
+	handler := cors.Default().Handler(s.router)
+
+	return http.ListenAndServe(":8000", handler)
 }
 
 func (s *Server) registerRouteHandlers() {
 	serviceWrapper := services.NewServiceWrapper(s.twitterClient)
 	timeline := services.NewTimelineService(serviceWrapper)
+	users := services.NewUser(serviceWrapper)
 
 	s.router.HandleFunc("/user/{userId}/tweets", handlers.TweetsHandler(timeline)).Methods(http.MethodGet)
+	s.router.HandleFunc("/users/query", handlers.UsersHandler(users)).Methods(http.MethodPost)
 }

@@ -10,6 +10,7 @@ import (
 type TwitterUserClient interface {
 	Search(screenName string) ([]twitter.User, *http.Response, error)
 	GetFriends(nextPageId int64) (*twitter.Friends, *http.Response, error)
+	GetUser(userId int64) (*twitter.User, *http.Response, error)
 }
 
 type User struct {
@@ -19,6 +20,8 @@ type User struct {
 func NewUser(client TwitterUserClient) *User {
 	return &User{client: client}
 }
+
+var ServiceUnavailable = errors.New("user service: Twitter API unavailable")
 
 func (u User) Search(screenName string) ([]twitter.User, error) {
 	users, httpResponse, err := u.client.Search(screenName)
@@ -35,7 +38,7 @@ func (u User) GetFollowingList() ([]twitter.User, error) {
 	err := u.getFollowingList(&twitterUsers, 0)
 
 	if err != nil {
-		return nil, errors.New("what do we do here?")
+		return nil, err
 	}
 
 	return twitterUsers, nil
@@ -45,8 +48,10 @@ func (u User) getFollowingList(data *[]twitter.User, nextPageId int64) error {
 	result, httpResponse, err := u.client.GetFriends(nextPageId)
 
 	if err != nil {
-		if httpResponse != nil && httpResponse.StatusCode == http.StatusInternalServerError {
-
+		if httpResponse != nil && (httpResponse.StatusCode == http.StatusTooManyRequests) {
+			return ServiceUnavailable
+		} else {
+			return err
 		}
 	}
 
@@ -57,4 +62,15 @@ func (u User) getFollowingList(data *[]twitter.User, nextPageId int64) error {
 	}
 
 	return u.getFollowingList(data, result.NextCursor)
+}
+
+func (u User) GetUser(userId int64) (*twitter.User, error) {
+	user, _, err := u.client.GetUser(userId)
+
+	if err != nil {
+		// @todo do something
+		log.Println(err.Error())
+	}
+
+	return user, nil
 }

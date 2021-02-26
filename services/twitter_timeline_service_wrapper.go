@@ -38,11 +38,19 @@ func (s ServiceWrapper) Search(screenName string) ([]twitter.User, *http.Respons
 
 func (s ServiceWrapper) GetFriends(nextPageId int64) (*twitter.Friends, *http.Response, error) {
 	return s.client.Friends.List(&twitter.FriendListParams{
-		UserID:              0,
+		UserID: 0,
 		//ScreenName:          "",
-		Cursor:              nextPageId,
+		Cursor: nextPageId,
 		//Count:               0,
 		//SkipStatus:          nil,
 		//IncludeUserEntities: nil,
+	})
+}
+
+func (s ServiceWrapper) GetUser(userId int64) (*twitter.User, *http.Response, error) {
+	return s.client.Users.Show(&twitter.UserShowParams{
+		UserID: userId,
+		//ScreenName:      "",
+		//IncludeEntities: nil,
 	})
 }

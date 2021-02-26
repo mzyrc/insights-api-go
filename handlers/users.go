@@ -10,6 +10,7 @@ import (
 type UserService interface {
 	Search(screenName string) (users []twitter.User, err error)
 	GetFollowingList() ([]twitter.User, error)
+	GetUser(userId int64) (*twitter.User, error)
 }
 
 type UserSearchParams struct {

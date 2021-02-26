@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func UserLookupHandler(service UserService) http.HandlerFunc {
+func UserLookupHandler(service TwitterUserService) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		requestVariables := mux.Vars(request)
 		userId := requestVariables["userId"]

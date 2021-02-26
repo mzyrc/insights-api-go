@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func FollowedUsersHandler(service UserService) http.HandlerFunc {
+func FollowedUsersHandler(service TwitterUserService) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		followedUsers, _ := service.GetFollowingList()
 

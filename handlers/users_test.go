@@ -30,7 +30,7 @@ func TestUsersHandler_Success(t *testing.T) {
 	}
 
 	router := mux.NewRouter()
-	router.HandleFunc("/users/query", UsersHandler(mockService))
+	router.HandleFunc("/users/query", UserSearchHandler(mockService))
 	router.ServeHTTP(rr, request)
 
 	if rr.Code != http.StatusOK {

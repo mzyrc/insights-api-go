@@ -13,6 +13,8 @@ type TwitterUserClient interface {
 	GetUser(userId int64) (*twitter.User, *http.Response, error)
 }
 
+var ServiceUnavailable = errors.New("user service: Twitter API unavailable")
+
 type User struct {
 	client TwitterUserClient
 }
@@ -20,8 +22,6 @@ type User struct {
 func NewUser(client TwitterUserClient) *User {
 	return &User{client: client}
 }
-
-var ServiceUnavailable = errors.New("user service: Twitter API unavailable")
 
 func (u User) Search(screenName string) ([]twitter.User, error) {
 	users, httpResponse, err := u.client.Search(screenName)

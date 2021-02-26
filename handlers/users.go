@@ -7,22 +7,22 @@ import (
 	"net/http"
 )
 
-type UserService interface {
+type TwitterUserService interface {
 	Search(screenName string) (users []twitter.User, err error)
 	GetFollowingList() ([]twitter.User, error)
 	GetUser(userId int64) (*twitter.User, error)
 }
 
-type UserSearchParams struct {
+type userSearchPostBody struct {
 	ScreenName string `json:"screen_name"`
 }
 
-func UsersHandler(service UserService) http.HandlerFunc {
+func UserSearchHandler(service TwitterUserService) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		decoder := json.NewDecoder(request.Body)
-		var postBody UserSearchParams
+		var searchPostBody userSearchPostBody
 
-		postBodyErr := decoder.Decode(&postBody)
+		postBodyErr := decoder.Decode(&searchPostBody)
 
 		if postBodyErr != nil {
 			writer.WriteHeader(http.StatusBadRequest)
@@ -30,7 +30,7 @@ func UsersHandler(service UserService) http.HandlerFunc {
 			return
 		}
 
-		twitterUsers, err := service.Search(postBody.ScreenName)
+		twitterUsers, err := service.Search(searchPostBody.ScreenName)
 
 		if err != nil {
 			writer.WriteHeader(http.StatusBadRequest)

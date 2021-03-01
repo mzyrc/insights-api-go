@@ -43,4 +43,5 @@ func (s *Server) registerRouteHandlers() {
 	s.router.HandleFunc("/users/tracking", handlers.FollowedUsersHandler(users)).Methods(http.MethodGet)
 	s.router.HandleFunc("/user/{userId}", handlers.UserLookupHandler(users)).Methods(http.MethodGet)
 	s.router.HandleFunc("/user/track/new", handlers.TrackUserHandler(trackedUserDAO)).Methods(http.MethodPost)
+	s.router.HandleFunc("/user/{userId}/untrack", handlers.UntrackUserHandler(trackedUserDAO)).Methods(http.MethodDelete)
 }

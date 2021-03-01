@@ -22,13 +22,13 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	_, dbErr := NewDBClient()
+	db, dbErr := NewDBClient()
 
 	if dbErr != nil {
 		log.Fatal(dbErr.Error())
 	}
 
-	server := NewServer(mux.NewRouter(), twitterClient)
+	server := NewServer(mux.NewRouter(), twitterClient, db)
 	log.Fatal(server.Start())
 }
 

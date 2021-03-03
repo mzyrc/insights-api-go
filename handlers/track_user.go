@@ -24,16 +24,14 @@ func TrackUserHandler(trackedUser trackedUserDAO) http.HandlerFunc {
 		decoderErr := requestBodyDecoder.Decode(&postBody)
 
 		if decoderErr != nil {
-			writer.WriteHeader(http.StatusBadRequest)
-			writer.Write([]byte("Invalid post body received"))
+			respondWithError(writer, http.StatusBadRequest, "Invalid post body received")
 			return
 		}
 
 		twitterUserId, err := strconv.ParseInt(postBody.UserId, 10, 64)
 
 		if err != nil {
-			writer.WriteHeader(http.StatusBadRequest)
-			writer.Write([]byte("Invalid user_id in post body"))
+			respondWithError(writer, http.StatusBadRequest, "Invalid user_id in post body")
 			return
 		}
 
@@ -41,16 +39,14 @@ func TrackUserHandler(trackedUser trackedUserDAO) http.HandlerFunc {
 
 		if err != nil {
 			if userExistsErr, ok := err.(dao.UserExistsError); ok {
-				writer.WriteHeader(http.StatusConflict)
-				writer.Write([]byte(userExistsErr.Error()))
+				respondWithError(writer, http.StatusConflict, userExistsErr.Error())
 				return
 			} else {
-				writer.WriteHeader(http.StatusInternalServerError)
-				writer.Write([]byte("An unknown error occurred"))
+				respondWithError(writer, http.StatusInternalServerError, "An unknown error occurred")
 				return
 			}
 		}
 
-		writer.WriteHeader(http.StatusOK)
+		respondWithSuccess(writer, http.StatusOK, "")
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/lib/pq"
+	"log"
 )
 
 type UserExistsError struct {
@@ -58,4 +59,24 @@ func (tu TrackedUser) Remove(userId int, twitterUserId int64) error {
 	}
 
 	return nil
+}
+
+func (tu TrackedUser) GetUsers(userId int) ([]int64, error) {
+	rows, err := tu.db.Query("SELECT twitter_user_id FROM usr_following WHERE user_id = $1", userId)
+
+	if err != nil {
+		// @todo do something useful here
+		log.Fatal(err)
+	}
+
+	var userIds []int64
+
+	for rows.Next() {
+		var twitterUserId int64
+		rows.Scan(&twitterUserId)
+
+		userIds = append(userIds, twitterUserId)
+	}
+
+	return userIds, nil
 }

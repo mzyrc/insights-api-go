@@ -8,6 +8,7 @@ import (
 	"insights-api/dao"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 )
 
@@ -25,7 +26,7 @@ func TestTrackUserHandler(t *testing.T) {
 		postBody             interface{}
 		mockCreate           func(userId int, twitterUserId int64) error
 		expectedStatusCode   int
-		expectedResponseBody string
+		expectedResponseBody httpResponsePayload
 	}{
 		{
 			description: "Should respond with 200 OK when creating a new tracking succeeds",
@@ -34,7 +35,7 @@ func TestTrackUserHandler(t *testing.T) {
 				return nil
 			},
 			expectedStatusCode:   http.StatusOK,
-			expectedResponseBody: "",
+			expectedResponseBody: httpResponsePayload{Data: ""},
 		},
 		{
 			description: "Should respond with 409 Conflict when a tracking for the specified user exists",
@@ -43,7 +44,7 @@ func TestTrackUserHandler(t *testing.T) {
 				return dao.UserExistsError{Id: twitterUserId}
 			},
 			expectedStatusCode:   http.StatusConflict,
-			expectedResponseBody: "tracked user: 1234567890 already tracked",
+			expectedResponseBody: httpResponsePayload{Error: "tracked user: 1234567890 already tracked"},
 		},
 		{
 			description: "Should respond with a 400 Bad Request if the post body is invalid",
@@ -52,7 +53,7 @@ func TestTrackUserHandler(t *testing.T) {
 				return nil
 			},
 			expectedStatusCode:   http.StatusBadRequest,
-			expectedResponseBody: "Invalid post body received",
+			expectedResponseBody: httpResponsePayload{Error: "Invalid post body received"},
 		},
 		{
 			description: "Should respond with a 400 Bad Request when an invalid user_id is specified in the post body",
@@ -61,7 +62,7 @@ func TestTrackUserHandler(t *testing.T) {
 				return nil
 			},
 			expectedStatusCode:   http.StatusBadRequest,
-			expectedResponseBody: "Invalid user_id in post body",
+			expectedResponseBody: httpResponsePayload{Error: "Invalid user_id in post body"},
 		},
 		{
 			description: "Should respond with 500 if an unknown error has occurred",
@@ -70,7 +71,7 @@ func TestTrackUserHandler(t *testing.T) {
 				return errors.New("some unknown error")
 			},
 			expectedStatusCode:   http.StatusInternalServerError,
-			expectedResponseBody: "An unknown error occurred",
+			expectedResponseBody: httpResponsePayload{Error: "An unknown error occurred"},
 		},
 	}
 
@@ -91,7 +92,10 @@ func TestTrackUserHandler(t *testing.T) {
 
 			responseBody := rr.Body.String()
 
-			if responseBody != testCase.expectedResponseBody {
+			var actual httpResponsePayload
+			json.Unmarshal([]byte(responseBody), &actual)
+
+			if !reflect.DeepEqual(actual, testCase.expectedResponseBody) {
 				t.Errorf("Expected body: %q but got: %q", testCase.expectedResponseBody, responseBody)
 			}
 		})

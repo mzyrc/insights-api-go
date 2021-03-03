@@ -1,24 +1,40 @@
 package handlers
 
 import (
-	"encoding/json"
 	"insights-api/adapters"
 	"net/http"
 )
 
-func FollowedUsersHandler(service TwitterUserService) http.HandlerFunc {
+type GetTrackedUsersDAO interface {
+	GetUsers(userId int) ([]int64, error)
+}
+
+func GetTrackedUsersHandler(trackedUserDAO GetTrackedUsersDAO, service TwitterUserService) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		followedUsers, _ := service.GetFollowingList()
+		currentUserId := 1
+		userIdList, err := trackedUserDAO.GetUsers(currentUserId)
 
-		users := make([]adapters.LocalUser, len(followedUsers))
-
-		for index, user := range followedUsers {
-			users[index] = adapters.NewUser(user).ToLocalUser()
+		if err != nil {
+			// @todo do something useful here
 		}
 
-		response, _ := json.Marshal(users)
+		if len(userIdList) == 0 {
+			respondWithSuccess(writer, http.StatusOK, []adapters.LocalUser{})
+			return
+		}
 
-		writer.Header().Set("Content-Type", "application/json")
-		writer.Write(response)
+		twitterUsers, err := service.GetUsers(userIdList)
+
+		if err != nil {
+			// @todo do something useful here
+		}
+
+		trackedUsers := make([]adapters.LocalUser, len(twitterUsers))
+
+		for index, user := range twitterUsers {
+			trackedUsers[index] = adapters.NewUser(user).ToLocalUser()
+		}
+
+		respondWithSuccess(writer, http.StatusOK, trackedUsers)
 	}
 }

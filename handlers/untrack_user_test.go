@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
 	"insights-api/dao"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 )
 
@@ -24,7 +26,7 @@ func TestUntrackUserHandler(t *testing.T) {
 		userId               string
 		mockRemove           func(userId int, twitterUserId int64) error
 		expectedStatusCode   int
-		expectedResponseBody string
+		expectedResponseBody httpResponsePayload
 	}{
 		{
 			description: "Should respond with status 200 OK when successfully removing a track on a user",
@@ -33,7 +35,7 @@ func TestUntrackUserHandler(t *testing.T) {
 				return nil
 			},
 			expectedStatusCode:   http.StatusOK,
-			expectedResponseBody: "",
+			expectedResponseBody: httpResponsePayload{Data: ""},
 		},
 		{
 			description: "Should respond with status 400 Bad Request when an invalid user id is supplied in the URL",
@@ -42,7 +44,7 @@ func TestUntrackUserHandler(t *testing.T) {
 				return nil
 			},
 			expectedStatusCode:   http.StatusBadRequest,
-			expectedResponseBody: "Invalid user id in URL",
+			expectedResponseBody: httpResponsePayload{Error: "Invalid user id in URL"},
 		},
 		{
 			description: "Should respond with 404 Not Found when the supplied user id is not tracked",
@@ -51,7 +53,7 @@ func TestUntrackUserHandler(t *testing.T) {
 				return dao.UserNotExistsError{Id: twitterUserId}
 			},
 			expectedStatusCode:   http.StatusNotFound,
-			expectedResponseBody: "User id 100 is not tracked",
+			expectedResponseBody: httpResponsePayload{Error: "User id 100 is not tracked"},
 		},
 		{
 			description: "Should respond with 500 Internal Server error when an unknown error occurs",
@@ -60,7 +62,7 @@ func TestUntrackUserHandler(t *testing.T) {
 				return errors.New("some unknown error")
 			},
 			expectedStatusCode:   http.StatusInternalServerError,
-			expectedResponseBody: "Unknown error occurred",
+			expectedResponseBody: httpResponsePayload{Error: "Unknown error occurred"},
 		},
 	}
 
@@ -81,7 +83,10 @@ func TestUntrackUserHandler(t *testing.T) {
 
 			responseBody := rr.Body.String()
 
-			if responseBody != testCase.expectedResponseBody {
+			var actual httpResponsePayload
+			json.Unmarshal([]byte(responseBody), &actual)
+
+			if !reflect.DeepEqual(actual, testCase.expectedResponseBody) {
 				t.Errorf("Expected response: %q but got: %q", testCase.expectedResponseBody, responseBody)
 			}
 		})

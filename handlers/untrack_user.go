@@ -22,8 +22,7 @@ func UntrackUserHandler(untrackUserDAO UntrackUserDAO) http.HandlerFunc {
 		twitterUserId, err := strconv.ParseInt(userId, 10, 64)
 
 		if err != nil {
-			writer.WriteHeader(http.StatusBadRequest)
-			writer.Write([]byte("Invalid user id in URL"))
+			respondWithError(writer, http.StatusBadRequest, "Invalid user id in URL")
 			return
 		}
 
@@ -31,16 +30,14 @@ func UntrackUserHandler(untrackUserDAO UntrackUserDAO) http.HandlerFunc {
 
 		if err != nil {
 			if userNotExistsErr, ok := err.(dao.UserNotExistsError); ok {
-				writer.WriteHeader(http.StatusNotFound)
-				writer.Write([]byte(fmt.Sprintf("User id %d is not tracked", userNotExistsErr.Id)))
+				respondWithError(writer, http.StatusNotFound, fmt.Sprintf("User id %d is not tracked", userNotExistsErr.Id))
 				return
 			} else {
-				writer.WriteHeader(http.StatusInternalServerError)
-				writer.Write([]byte("Unknown error occurred"))
+				respondWithError(writer, http.StatusInternalServerError, "Unknown error occurred")
 				return
 			}
 		}
 
-		writer.WriteHeader(http.StatusOK)
+		respondWithSuccess(writer, http.StatusOK, "")
 	}
 }

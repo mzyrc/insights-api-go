@@ -9,6 +9,7 @@ type MockTwitterUserClient struct {
 	MockSearch     func(screenName string) ([]twitter.User, *http.Response, error)
 	MockGetFriends func(nextPageId int64) (*twitter.Friends, *http.Response, error)
 	MockGetUser    func(userId int64) (*twitter.User, *http.Response, error)
+	MockGetUsers   func(userIdList []int64) ([]twitter.User, *http.Response, error)
 }
 
 func (m MockTwitterUserClient) Search(screenName string) ([]twitter.User, *http.Response, error) {
@@ -21,4 +22,8 @@ func (m MockTwitterUserClient) GetFriends(nextPageId int64) (*twitter.Friends, *
 
 func (m MockTwitterUserClient) GetUser(userId int64) (*twitter.User, *http.Response, error) {
 	return m.MockGetUser(userId)
+}
+
+func (m MockTwitterUserClient) GetUsers(userIdList []int64)([]twitter.User, *http.Response, error) {
+	return m.MockGetUsers(userIdList)
 }

@@ -11,6 +11,7 @@ type TwitterUserService interface {
 	Search(screenName string) (users []twitter.User, err error)
 	GetFollowingList() ([]twitter.User, error)
 	GetUser(userId int64) (*twitter.User, error)
+	GetUsers(userIdList []int64) ([]twitter.User, error)
 }
 
 type userSearchPostBody struct {
@@ -25,16 +26,14 @@ func UserSearchHandler(service TwitterUserService) http.HandlerFunc {
 		postBodyErr := decoder.Decode(&searchPostBody)
 
 		if postBodyErr != nil {
-			writer.WriteHeader(http.StatusBadRequest)
-			writer.Write([]byte("Invalid post body"))
+			respondWithError(writer, http.StatusBadRequest, "Invalid post body")
 			return
 		}
 
 		twitterUsers, err := service.Search(searchPostBody.ScreenName)
 
 		if err != nil {
-			writer.WriteHeader(http.StatusBadRequest)
-			writer.Write([]byte(err.Error()))
+			respondWithError(writer, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -45,9 +44,6 @@ func UserSearchHandler(service TwitterUserService) http.HandlerFunc {
 			users[index] = userAdapter.ToLocalUser()
 		}
 
-		response, _ := json.Marshal(users)
-		writer.Header().Set("Content-Type", "application/json")
-		writer.WriteHeader(http.StatusOK)
-		writer.Write(response)
+		respondWithSuccess(writer, http.StatusOK, users)
 	}
 }

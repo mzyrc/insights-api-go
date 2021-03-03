@@ -11,6 +11,7 @@ type TwitterUserClient interface {
 	Search(screenName string) ([]twitter.User, *http.Response, error)
 	GetFriends(nextPageId int64) (*twitter.Friends, *http.Response, error)
 	GetUser(userId int64) (*twitter.User, *http.Response, error)
+	GetUsers(userIdList []int64) ([]twitter.User, *http.Response, error)
 }
 
 var ServiceUnavailable = errors.New("user service: Twitter API unavailable")
@@ -73,4 +74,14 @@ func (u User) GetUser(userId int64) (*twitter.User, error) {
 	}
 
 	return user, nil
+}
+
+func (u User) GetUsers(userIdList []int64) ([]twitter.User, error) {
+	users, _, err := u.client.GetUsers(userIdList)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }

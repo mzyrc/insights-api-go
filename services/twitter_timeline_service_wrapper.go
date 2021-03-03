@@ -54,3 +54,11 @@ func (s ServiceWrapper) GetUser(userId int64) (*twitter.User, *http.Response, er
 		//IncludeEntities: nil,
 	})
 }
+
+func (s ServiceWrapper) GetUsers(userIdList []int64) ([]twitter.User, *http.Response, error) {
+	return s.client.Users.Lookup(&twitter.UserLookupParams{
+		UserID: userIdList,
+		//ScreenName:      nil,
+		//IncludeEntities: nil,
+	})
+}

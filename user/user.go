@@ -1,4 +1,4 @@
-package services
+package user
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-type TwitterUserClient interface {
+type twitterUserClient interface {
 	Search(screenName string) ([]twitter.User, *http.Response, error)
 	GetFriends(nextPageId int64) (*twitter.Friends, *http.Response, error)
 	GetUser(userId int64) (*twitter.User, *http.Response, error)
@@ -17,10 +17,10 @@ type TwitterUserClient interface {
 var ServiceUnavailable = errors.New("user service: Twitter API unavailable")
 
 type User struct {
-	client TwitterUserClient
+	client twitterUserClient
 }
 
-func NewUser(client TwitterUserClient) *User {
+func NewUser(client twitterUserClient) *User {
 	return &User{client: client}
 }
 

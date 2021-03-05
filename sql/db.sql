@@ -31,3 +31,29 @@ CREATE UNIQUE INDEX IF NOT EXISTS usr_following_user_id_twitter_user_id_uindex
 
 INSERT INTO usr (username)
 VALUES ('db998');
+
+CREATE TABLE tweet (
+                       id              bigint      NOT NULL
+                           CONSTRAINT tweet_pk
+                               PRIMARY KEY,
+                       text            text        NOT NULL,
+                       user_id         bigint      NOT NULL,
+                       created_at      timestamptz NOT NULL,
+                       favourite_count int DEFAULT NULL,
+                       retweet_count   int DEFAULT NULL
+);
+
+CREATE INDEX tweet_user_id_index
+    ON tweet (user_id);
+
+CREATE TABLE tweet_synchronisation (
+                                       last_tweet_id   bigint                    NOT NULL
+                                           CONSTRAINT tweet_synchronisation_tweet_id_fk
+                                               REFERENCES tweet,
+                                       user_id         bigint                    NOT NULL,
+                                       synchronised_at timestamptz DEFAULT NOW() NOT NULL
+);
+
+CREATE UNIQUE INDEX tweet_synchronisation_last_tweet_id_uindex
+    ON tweet_synchronisation (last_tweet_id);
+

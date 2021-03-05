@@ -3,7 +3,7 @@ package handlers
 import (
 	"fmt"
 	"github.com/gorilla/mux"
-	"insights-api/dao"
+	"insights-api/user"
 	"net/http"
 	"strconv"
 )
@@ -29,7 +29,7 @@ func UntrackUserHandler(untrackUserDAO UntrackUserDAO) http.HandlerFunc {
 		err = untrackUserDAO.Remove(currentUserId, twitterUserId)
 
 		if err != nil {
-			if userNotExistsErr, ok := err.(dao.UserNotExistsError); ok {
+			if userNotExistsErr, ok := err.(user.UserNotExistsError); ok {
 				respondWithError(writer, http.StatusNotFound, fmt.Sprintf("User id %d is not tracked", userNotExistsErr.Id))
 				return
 			} else {

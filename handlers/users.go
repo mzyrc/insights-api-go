@@ -3,7 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/dghubble/go-twitter/twitter"
-	"insights-api/adapters"
+	"insights-api/user"
 	"net/http"
 )
 
@@ -37,10 +37,10 @@ func UserSearchHandler(service TwitterUserService) http.HandlerFunc {
 			return
 		}
 
-		users := make([]adapters.LocalUser, len(twitterUsers))
+		users := make([]user.LocalUser, len(twitterUsers))
 
-		for index, user := range twitterUsers {
-			userAdapter := adapters.NewUser(user)
+		for index, twitterUser := range twitterUsers {
+			userAdapter := user.NewUserAdapter(twitterUser)
 			users[index] = userAdapter.ToLocalUser()
 		}
 

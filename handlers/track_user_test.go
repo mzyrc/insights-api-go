@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gorilla/mux"
-	"insights-api/dao"
+	"insights-api/user"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -41,7 +41,7 @@ func TestTrackUserHandler(t *testing.T) {
 			description: "Should respond with 409 Conflict when a tracking for the specified user exists",
 			postBody:    map[string]string{"user_id": "1234567890"},
 			mockCreate: func(userId int, twitterUserId int64) error {
-				return dao.UserExistsError{Id: twitterUserId}
+				return user.UserExistsError{Id: twitterUserId}
 			},
 			expectedStatusCode:   http.StatusConflict,
 			expectedResponseBody: httpResponsePayload{Error: "tracked user: 1234567890 already tracked"},

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"insights-api/dao"
+	"insights-api/user"
 	"net/http"
 	"strconv"
 )
@@ -38,7 +38,7 @@ func TrackUserHandler(trackedUser trackedUserDAO) http.HandlerFunc {
 		err = trackedUser.Create(currentUser, twitterUserId)
 
 		if err != nil {
-			if userExistsErr, ok := err.(dao.UserExistsError); ok {
+			if userExistsErr, ok := err.(user.UserExistsError); ok {
 				respondWithError(writer, http.StatusConflict, userExistsErr.Error())
 				return
 			} else {

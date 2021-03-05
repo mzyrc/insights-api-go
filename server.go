@@ -5,9 +5,10 @@ import (
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
-	"insights-api/dao"
 	"insights-api/handlers"
 	"insights-api/services"
+	"insights-api/tweets"
+	"insights-api/user"
 	"log"
 	"net/http"
 )
@@ -34,9 +35,9 @@ func (s Server) Start() error {
 
 func (s *Server) registerRouteHandlers() {
 	serviceWrapper := services.NewServiceWrapper(s.twitterClient)
-	timeline := services.NewTimelineService(serviceWrapper)
-	users := services.NewUser(serviceWrapper)
-	trackedUserDAO := dao.NewTrackedUserDAO(s.db)
+	timeline := tweets.NewTimelineService(serviceWrapper)
+	users := user.NewUser(serviceWrapper)
+	trackedUserDAO := user.NewTrackedUserDAO(s.db)
 
 	s.router.HandleFunc("/user/{userId}/tweets", handlers.TweetsHandler(timeline)).Methods(http.MethodGet)
 	s.router.HandleFunc("/users/query", handlers.UserSearchHandler(users)).Methods(http.MethodPost)

@@ -3,7 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"insights-api/adapters"
+	"insights-api/user"
 	"net/http"
 	"strconv"
 )
@@ -21,7 +21,7 @@ func UserLookupHandler(service TwitterUserService) http.HandlerFunc {
 			return
 		}
 
-		user, serviceErr := service.GetUser(twitterUserId)
+		twitterUser, serviceErr := service.GetUser(twitterUserId)
 
 		if serviceErr != nil {
 			writer.WriteHeader(http.StatusServiceUnavailable)
@@ -29,7 +29,7 @@ func UserLookupHandler(service TwitterUserService) http.HandlerFunc {
 			return
 		}
 
-		response, _ := json.Marshal(adapters.NewUser(*user).ToLocalUser())
+		response, _ := json.Marshal(user.NewUserAdapter(*twitterUser).ToLocalUser())
 
 		writer.Header().Set("Content-Type", "application/json")
 		writer.WriteHeader(http.StatusOK)

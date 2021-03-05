@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
-	"insights-api/dao"
+	"insights-api/user"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -50,7 +50,7 @@ func TestUntrackUserHandler(t *testing.T) {
 			description: "Should respond with 404 Not Found when the supplied user id is not tracked",
 			userId:      "100",
 			mockRemove: func(userId int, twitterUserId int64) error {
-				return dao.UserNotExistsError{Id: twitterUserId}
+				return user.UserNotExistsError{Id: twitterUserId}
 			},
 			expectedStatusCode:   http.StatusNotFound,
 			expectedResponseBody: httpResponsePayload{Error: "User id 100 is not tracked"},

@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/dghubble/go-twitter/twitter"
+	"insights-api/tweets"
 	"net/http"
 )
 
@@ -13,7 +14,7 @@ func NewServiceWrapper(client *twitter.Client) *ServiceWrapper {
 	return &ServiceWrapper{client: client}
 }
 
-func (s ServiceWrapper) UserTimeline(params TimelineConfig) ([]twitter.Tweet, *http.Response, error) {
+func (s ServiceWrapper) UserTimeline(params tweets.TimelineConfig) ([]twitter.Tweet, *http.Response, error) {
 	return s.client.Timelines.UserTimeline(&twitter.UserTimelineParams{
 		UserID: params.UserId,
 		//ScreenName:      "",

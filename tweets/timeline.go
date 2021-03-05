@@ -1,4 +1,4 @@
-package services
+package tweets
 
 import (
 	"errors"
@@ -11,16 +11,16 @@ type TimelineConfig struct {
 	UserId int64
 }
 
-type TwitterTimelineClient interface {
+type twitterTimelineClient interface {
 	UserTimeline(config TimelineConfig) ([]twitter.Tweet, *http.Response, error)
 }
 
-func NewTimelineService(client TwitterTimelineClient) *Timeline {
+func NewTimelineService(client twitterTimelineClient) *Timeline {
 	return &Timeline{client: client}
 }
 
 type Timeline struct {
-	client TwitterTimelineClient
+	client twitterTimelineClient
 }
 
 func (t Timeline) GetTimeLine(userId int64) ([]twitter.Tweet, error) {

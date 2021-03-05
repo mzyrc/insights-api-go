@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"insights-api/adapters"
+	"insights-api/user"
 	"net/http"
 )
 
@@ -19,7 +19,7 @@ func GetTrackedUsersHandler(trackedUserDAO GetTrackedUsersDAO, service TwitterUs
 		}
 
 		if len(userIdList) == 0 {
-			respondWithSuccess(writer, http.StatusOK, []adapters.LocalUser{})
+			respondWithSuccess(writer, http.StatusOK, []user.LocalUser{})
 			return
 		}
 
@@ -29,10 +29,10 @@ func GetTrackedUsersHandler(trackedUserDAO GetTrackedUsersDAO, service TwitterUs
 			// @todo do something useful here
 		}
 
-		trackedUsers := make([]adapters.LocalUser, len(twitterUsers))
+		trackedUsers := make([]user.LocalUser, len(twitterUsers))
 
-		for index, user := range twitterUsers {
-			trackedUsers[index] = adapters.NewUser(user).ToLocalUser()
+		for index, twitterUser := range twitterUsers {
+			trackedUsers[index] = user.NewUserAdapter(twitterUser).ToLocalUser()
 		}
 
 		respondWithSuccess(writer, http.StatusOK, trackedUsers)

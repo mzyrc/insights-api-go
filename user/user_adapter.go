@@ -1,4 +1,4 @@
-package adapters
+package user
 
 import (
 	"github.com/dghubble/go-twitter/twitter"
@@ -17,17 +17,17 @@ type LocalUser struct {
 	SignedUpAt               string `json:"signed_up_at"`
 }
 
-type User struct {
+type UserAdapter struct {
 	user twitter.User
 }
 
-func NewUser(user twitter.User) *User {
-	return &User{user: user}
+func NewUserAdapter(user twitter.User) *UserAdapter {
+	return &UserAdapter{user: user}
 }
 
-func (u User) ToLocalUser() LocalUser {
+func (u UserAdapter) ToLocalUser() LocalUser {
 	return LocalUser{
-		ID: u.user.IDStr,
+		ID:                       u.user.IDStr,
 		Name:                     u.user.Name,
 		ScreenName:               u.user.ScreenName,
 		ProfileImageThumbnailURL: u.user.ProfileImageURL,

@@ -5,11 +5,11 @@ import (
 	"net/http"
 )
 
-type GetTrackedUsersDAO interface {
+type trackedUsersDAO interface {
 	GetUsers(userId int) ([]int64, error)
 }
 
-func GetTrackedUsersHandler(trackedUserDAO GetTrackedUsersDAO, service TwitterUserService) http.HandlerFunc {
+func GetTrackedUsersHandler(trackedUserDAO trackedUsersDAO, service TwitterUserService) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		currentUserId := 1
 		userIdList, err := trackedUserDAO.GetUsers(currentUserId)

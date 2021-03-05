@@ -1,19 +1,17 @@
 package handlers
 
 import (
-	"github.com/dghubble/go-twitter/twitter"
 	"github.com/gorilla/mux"
 	"insights-api/tweets"
 	"net/http"
 	"strconv"
 )
 
-type TweetService interface {
-	GetTimeLine(userId int64) ([]twitter.Tweet, error)
+type tweetService interface {
 	GetTweets(userId int64) ([]tweets.LocalTweet, error)
 }
 
-func TweetsHandler(service TweetService) http.HandlerFunc {
+func TweetsHandler(service tweetService) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		requestVariables := mux.Vars(request)
 		userId := requestVariables["userId"]

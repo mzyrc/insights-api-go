@@ -15,11 +15,11 @@ type trackedUserDAO interface {
 	Create(userId int, twitterUserId int64) error
 }
 
-type TweetSyncService interface {
+type tweetSyncService interface {
 	StoreTweetsByUser(userId int64) error
 }
 
-func TrackUserHandler(trackedUser trackedUserDAO, tweetSync TweetSyncService) http.HandlerFunc {
+func TrackUserHandler(trackedUser trackedUserDAO, tweetSync tweetSyncService) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		currentUser := 1
 

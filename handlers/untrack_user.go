@@ -8,11 +8,11 @@ import (
 	"strconv"
 )
 
-type UntrackUserDAO interface {
+type untrackUserDAO interface {
 	Remove(userId int, twitterUserId int64) error
 }
 
-func UntrackUserHandler(untrackUserDAO UntrackUserDAO) http.HandlerFunc {
+func UntrackUserHandler(untrackUserDAO untrackUserDAO) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		currentUserId := 1
 

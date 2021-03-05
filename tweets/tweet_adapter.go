@@ -11,15 +11,15 @@ type LocalTweet struct {
 	RetweetCount   int    `json:"retweet_count"`
 }
 
-type TweetAdapter struct {
+type tweetAdapter struct {
 	tweet *twitter.Tweet
 }
 
-func NewTweet(tweet *twitter.Tweet) *TweetAdapter {
-	return &TweetAdapter{tweet: tweet}
+func newTweetAdapter(tweet *twitter.Tweet) *tweetAdapter {
+	return &tweetAdapter{tweet: tweet}
 }
 
-func (t TweetAdapter) ToLocalTweet() LocalTweet {
+func (t tweetAdapter) ToLocalTweet() LocalTweet {
 	return LocalTweet{
 		ID:             t.tweet.ID,
 		CreatedAt:      t.tweet.CreatedAt,

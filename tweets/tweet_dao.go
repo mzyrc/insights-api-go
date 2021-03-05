@@ -6,15 +6,15 @@ import (
 	"log"
 )
 
-type Tweet struct {
+type tweetDAO struct {
 	db *sql.DB
 }
 
-func NewTweetDAO(db *sql.DB) *Tweet {
-	return &Tweet{db: db}
+func newTweetDAO(db *sql.DB) *tweetDAO {
+	return &tweetDAO{db: db}
 }
 
-func (t Tweet) Save(tweets []LocalTweet) error {
+func (t tweetDAO) Save(tweets []LocalTweet) error {
 	transaction, err := t.db.Begin()
 
 	if err != nil {
@@ -23,7 +23,7 @@ func (t Tweet) Save(tweets []LocalTweet) error {
 	}
 
 	statement, statementErr := transaction.Prepare(
-		pq.CopyIn("tweet", "tweet_id", "text", "user_id", "created_at", "favourite_count", "retweet_count"),
+		pq.CopyIn("tweet", "id", "text", "user_id", "created_at", "favourite_count", "retweet_count"),
 	)
 
 	if statementErr != nil {
@@ -32,7 +32,7 @@ func (t Tweet) Save(tweets []LocalTweet) error {
 	}
 
 	for _, tweet := range tweets {
-		_, err = statement.Exec(tweet, tweet.UserID, tweet.Text, tweet.CreatedAt, tweet.FavouriteCount, tweet.RetweetCount)
+		_, err = statement.Exec(tweet.ID, tweet.Text, tweet.UserID, tweet.CreatedAt, tweet.FavouriteCount, tweet.RetweetCount)
 
 		if err != nil {
 			log.Println(err)
@@ -61,5 +61,30 @@ func (t Tweet) Save(tweets []LocalTweet) error {
 		return err
 	}
 
+	log.Println("Successfully stored tweets")
+
 	return nil
+}
+
+func (t tweetDAO) GetAll(userId int64) ([]LocalTweet, error) {
+	log.Println("Fetching tweets from the database")
+	rows, err := t.db.Query("SELECT * FROM tweet WHERE user_id = $1", userId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var tweets []LocalTweet
+
+	for rows.Next() {
+		var tweet LocalTweet
+		err = rows.Scan(&tweet.ID, &tweet.Text, &tweet.UserID, &tweet.CreatedAt, &tweet.FavouriteCount, &tweet.RetweetCount)
+		if err != nil {
+			return nil, err
+		}
+
+		tweets = append(tweets, tweet)
+	}
+
+	return tweets, nil
 }

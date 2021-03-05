@@ -35,14 +35,14 @@ func (s Server) Start() error {
 
 func (s *Server) registerRouteHandlers() {
 	serviceWrapper := services.NewServiceWrapper(s.twitterClient)
-	timeline := tweets.NewTimelineService(serviceWrapper)
+	tweetService := tweets.NewTweetService(serviceWrapper, s.db)
 	users := user.NewUser(serviceWrapper)
 	trackedUserDAO := user.NewTrackedUserDAO(s.db)
 
-	s.router.HandleFunc("/user/{userId}/tweets", handlers.TweetsHandler(timeline)).Methods(http.MethodGet)
+	s.router.HandleFunc("/user/{userId}/tweets", handlers.TweetsHandler(tweetService)).Methods(http.MethodGet)
 	s.router.HandleFunc("/users/query", handlers.UserSearchHandler(users)).Methods(http.MethodPost)
 	s.router.HandleFunc("/users/tracking", handlers.GetTrackedUsersHandler(trackedUserDAO, users)).Methods(http.MethodGet)
 	s.router.HandleFunc("/user/{userId}", handlers.UserLookupHandler(users)).Methods(http.MethodGet)
-	s.router.HandleFunc("/user/track/new", handlers.TrackUserHandler(trackedUserDAO)).Methods(http.MethodPost)
+	s.router.HandleFunc("/user/track/new", handlers.TrackUserHandler(trackedUserDAO, tweetService)).Methods(http.MethodPost)
 	s.router.HandleFunc("/user/{userId}/untrack", handlers.UntrackUserHandler(trackedUserDAO)).Methods(http.MethodDelete)
 }

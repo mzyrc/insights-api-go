@@ -3,16 +3,17 @@ package handlers
 import (
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/gorilla/mux"
-	tweets2 "insights-api/tweets"
+	"insights-api/tweets"
 	"net/http"
 	"strconv"
 )
 
-type TimelineService interface {
+type TweetService interface {
 	GetTimeLine(userId int64) ([]twitter.Tweet, error)
+	GetTweets(userId int64) ([]tweets.LocalTweet, error)
 }
 
-func TweetsHandler(service TimelineService) http.HandlerFunc {
+func TweetsHandler(service TweetService) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		requestVariables := mux.Vars(request)
 		userId := requestVariables["userId"]
@@ -24,12 +25,7 @@ func TweetsHandler(service TimelineService) http.HandlerFunc {
 			return
 		}
 
-		tweets, timelineErr := service.GetTimeLine(twitterUserId)
-		userTweets := make([]tweets2.LocalTweet, len(tweets))
-
-		for index, tweet := range tweets {
-			userTweets[index] = tweets2.NewTweet(&tweet).ToLocalTweet()
-		}
+		userTweets, timelineErr := service.GetTweets(twitterUserId)
 
 		if timelineErr != nil {
 			respondWithError(writer, http.StatusBadRequest, timelineErr.Error())

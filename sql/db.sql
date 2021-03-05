@@ -46,6 +46,9 @@ CREATE TABLE tweet (
 CREATE INDEX tweet_user_id_index
     ON tweet (user_id);
 
+ALTER TABLE tweet
+    OWNER TO insights_user;
+
 CREATE TABLE tweet_synchronisation (
                                        last_tweet_id   bigint                    NOT NULL
                                            CONSTRAINT tweet_synchronisation_tweet_id_fk
@@ -57,3 +60,5 @@ CREATE TABLE tweet_synchronisation (
 CREATE UNIQUE INDEX tweet_synchronisation_last_tweet_id_uindex
     ON tweet_synchronisation (last_tweet_id);
 
+ALTER TABLE tweet_synchronisation
+    OWNER TO insights_user;

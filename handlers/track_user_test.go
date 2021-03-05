@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gorilla/mux"
+	"insights-api/mocks"
 	"insights-api/user"
 	"net/http"
 	"net/http/httptest"
@@ -78,12 +79,17 @@ func TestTrackUserHandler(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockTrackedUserDAO := MockTrackedUserDAO{mockCreate: testCase.mockCreate}
+			mockTweetSync := mocks.MockTweetsSync{
+				MockStoreTweetsByUser: func(userId int64) error {
+					return nil
+				},
+			}
 
 			jsonBody, _ := json.Marshal(testCase.postBody)
 			request, _ := http.NewRequest(http.MethodPost, "/user/track/new", bytes.NewBuffer(jsonBody))
 			rr := httptest.NewRecorder()
 			router := mux.NewRouter()
-			router.HandleFunc("/user/track/new", TrackUserHandler(mockTrackedUserDAO))
+			router.HandleFunc("/user/track/new", TrackUserHandler(mockTrackedUserDAO, mockTweetSync))
 			router.ServeHTTP(rr, request)
 
 			if rr.Code != testCase.expectedStatusCode {

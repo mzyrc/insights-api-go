@@ -31,7 +31,7 @@ func TestTimelineService_GetTimeLine(t *testing.T) {
 		},
 	}
 
-	service := Timeline{client: mockTimeLineService}
+	service := tweetService{client: mockTimeLineService}
 
 	_, err := service.GetTimeLine(1)
 
@@ -60,14 +60,14 @@ func TestTimelineService_GetTimeLine_Error(t *testing.T) {
 				mockHttpResponse := http.Response{StatusCode: 500}
 				return nil, &mockHttpResponse, errors.New("mock error message")
 			},
-			expectedError: "unexpected error occurred requesting timeline: mock error message",
+			expectedError: "unexpected error occurred requesting tweetService: mock error message",
 		},
 		{
 			description: "Should return an unexpected error occurred error when an HTTP response is not present",
 			mockTimelineFn: func(config TimelineConfig) ([]twitter.Tweet, *http.Response, error) {
 				return nil, nil, errors.New("mock error message")
 			},
-			expectedError: "unexpected error occurred requesting timeline: mock error message",
+			expectedError: "unexpected error occurred requesting tweetService: mock error message",
 		},
 	}
 
@@ -77,7 +77,7 @@ func TestTimelineService_GetTimeLine_Error(t *testing.T) {
 				mockGetTimeLine: testCase.mockTimelineFn,
 			}
 
-			service := Timeline{client: mockTimeLineService}
+			service := tweetService{client: mockTimeLineService}
 
 			_, err := service.GetTimeLine(1)
 

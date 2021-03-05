@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/gorilla/mux"
+	"insights-api/tweets"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -12,10 +13,15 @@ import (
 
 type MockTimelineProcessor struct {
 	mockGetTimeline func(userId int64) ([]twitter.Tweet, error)
+	mockGetTweets   func(userId int64) ([]tweets.LocalTweet, error)
 }
 
 func (m MockTimelineProcessor) GetTimeLine(userId int64) ([]twitter.Tweet, error) {
 	return m.mockGetTimeline(userId)
+}
+
+func (m MockTimelineProcessor) GetTweets(userId int64) ([]tweets.LocalTweet, error) {
+	return m.mockGetTweets(userId)
 }
 
 func TestTweetsHandler(t *testing.T) {

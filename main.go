@@ -97,9 +97,12 @@ func NewDBClient() (*sql.DB, error) {
 
 	_, err = db.Query("SELECT 1+1")
 
+
 	if err != nil {
 		return nil, err
 	}
+
+	log.Println("Connected to database successfully")
 
 	return db, nil
 }

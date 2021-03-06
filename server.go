@@ -34,7 +34,7 @@ func (s Server) Start() error {
 }
 
 func (s *Server) registerRouteHandlers() {
-	serviceWrapper := services.NewServiceWrapper(s.twitterClient)
+	serviceWrapper := services.NewTweetServiceWrapper(s.twitterClient)
 	tweetService := tweets.NewTweetService(serviceWrapper, s.db)
 	users := user.NewUser(serviceWrapper)
 	trackedUserDAO := user.NewTrackedUserDAO(s.db)

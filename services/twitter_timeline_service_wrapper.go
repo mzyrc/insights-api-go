@@ -10,7 +10,7 @@ type ServiceWrapper struct {
 	client *twitter.Client
 }
 
-func NewServiceWrapper(client *twitter.Client) *ServiceWrapper {
+func NewTweetServiceWrapper(client *twitter.Client) *ServiceWrapper {
 	return &ServiceWrapper{client: client}
 }
 

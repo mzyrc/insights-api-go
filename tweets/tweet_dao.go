@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"github.com/lib/pq"
 	"log"
+	"time"
 )
 
 type tweetDAO struct {
@@ -87,4 +88,15 @@ func (t tweetDAO) GetAll(userId int64) ([]LocalTweet, error) {
 	}
 
 	return tweets, nil
+}
+
+func (t tweetDAO) SetLastSync(timestamp time.Time, tweet LocalTweet) {
+	insertSQL := "INSERT INTO tweet_synchronisation (last_tweet_id, user_id, synchronised_at) VALUES ($1, $2, $3)"
+	_, err := t.db.Exec(insertSQL, tweet.ID, tweet.UserID, timestamp)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Println("Set the last sync")
 }

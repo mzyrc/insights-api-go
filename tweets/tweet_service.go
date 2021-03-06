@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/dghubble/go-twitter/twitter"
 	"net/http"
+	"sort"
+	"time"
 )
 
 type TimelineConfig struct {
@@ -19,6 +21,7 @@ type twitterTimelineClient interface {
 type tweetStorage interface {
 	GetAll(userId int64) ([]LocalTweet, error)
 	Save(tweets []LocalTweet) error
+	SetLastSync(timestamp time.Time, tweet LocalTweet)
 }
 
 type tweetService struct {
@@ -68,11 +71,18 @@ func (t tweetService) StoreTweetsByUser(userId int64) error {
 		tweets[index] = newTweetAdapter(&tweet).ToLocalTweet()
 	}
 
+	currentSyncTime := time.Now()
 	err = t.tweetStorage.Save(tweets)
+
+	sort.Slice(tweets, func(i, j int) bool {
+		return tweets[i].ID > tweets[j].ID
+	})
 
 	if err != nil {
 		return err
 	}
+
+	t.tweetStorage.SetLastSync(currentSyncTime, tweets[0])
 
 	return nil
 }

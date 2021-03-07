@@ -9,6 +9,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"insights-api/services"
+	"insights-api/tweets"
 	"log"
 	"os"
 )
@@ -19,16 +21,20 @@ func main() {
 	twitterClient, err := NewTwitterClient()
 
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatal(err)
 	}
 
 	db, dbErr := NewDBClient()
 
 	if dbErr != nil {
-		log.Fatal(dbErr.Error())
+		log.Fatal(dbErr)
 	}
 
-	server := NewServer(mux.NewRouter(), twitterClient, db)
+	serviceWrapper := services.NewTweetServiceWrapper(twitterClient)
+	tweetService := tweets.NewTweetService(serviceWrapper, db)
+	server := NewServer(mux.NewRouter(), serviceWrapper, db, tweetService)
+
+	go tweetService.Synchroniser.Start()
 	log.Fatal(server.Start())
 }
 

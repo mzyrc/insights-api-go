@@ -8,7 +8,7 @@ import (
 )
 
 type tweetService interface {
-	GetTweets(userId int64) ([]tweets.LocalTweet, error)
+	GetTweets(userId int64) ([]tweets.Tweet, error)
 }
 
 func TweetsHandler(service tweetService) http.HandlerFunc {

@@ -19,7 +19,7 @@ func (s ServiceWrapper) UserTimeline(params tweets.TimelineConfig) ([]twitter.Tw
 		UserID: params.UserId,
 		//ScreenName:      "",
 		//Count:           0,
-		//SinceID:         0,
+		SinceID: params.StartFromTweetID,
 		//MaxID:           0,
 		//TrimUser:        nil,
 		//ExcludeReplies:  nil,

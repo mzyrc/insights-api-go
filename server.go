@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"github.com/dghubble/go-twitter/twitter"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"insights-api/handlers"
@@ -15,12 +14,18 @@ import (
 
 type Server struct {
 	router        *mux.Router
-	twitterClient *twitter.Client
+	twitterClient *services.ServiceWrapper
 	db            *sql.DB
+	tweetService  *tweets.TweetService
 }
 
-func NewServer(router *mux.Router, twitterClient *twitter.Client, db *sql.DB) *Server {
-	return &Server{router: router, twitterClient: twitterClient, db: db}
+func NewServer(router *mux.Router, twitterClient *services.ServiceWrapper, db *sql.DB, tweetService *tweets.TweetService) *Server {
+	return &Server{
+		router:        router,
+		twitterClient: twitterClient,
+		db:            db,
+		tweetService:  tweetService,
+	}
 }
 
 func (s Server) Start() error {
@@ -34,9 +39,8 @@ func (s Server) Start() error {
 }
 
 func (s *Server) registerRouteHandlers() {
-	serviceWrapper := services.NewTweetServiceWrapper(s.twitterClient)
-	tweetService := tweets.NewTweetService(serviceWrapper, s.db)
-	users := user.NewUser(serviceWrapper)
+	tweetService := tweets.NewTweetService(s.twitterClient, s.db)
+	users := user.NewUser(s.twitterClient)
 	trackedUserDAO := user.NewTrackedUserDAO(s.db)
 
 	s.router.HandleFunc("/user/{userId}/tweets", handlers.TweetsHandler(tweetService)).Methods(http.MethodGet)

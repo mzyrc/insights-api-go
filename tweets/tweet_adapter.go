@@ -2,7 +2,7 @@ package tweets
 
 import "github.com/dghubble/go-twitter/twitter"
 
-type LocalTweet struct {
+type Tweet struct {
 	ID             int64  `json:"id"`
 	CreatedAt      string `json:"created_at"`
 	Text           string `json:"text"`
@@ -19,8 +19,8 @@ func newTweetAdapter(tweet *twitter.Tweet) *tweetAdapter {
 	return &tweetAdapter{tweet: tweet}
 }
 
-func (t tweetAdapter) ToLocalTweet() LocalTweet {
-	return LocalTweet{
+func (t tweetAdapter) ToLocalTweet() Tweet {
+	return Tweet{
 		ID:             t.tweet.ID,
 		CreatedAt:      t.tweet.CreatedAt,
 		Text:           t.tweet.Text,

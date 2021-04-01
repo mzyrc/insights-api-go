@@ -3,7 +3,6 @@ package tweets
 import (
 	"fmt"
 	"log"
-	"sort"
 	"time"
 )
 
@@ -13,15 +12,19 @@ type tweetSyncStorage interface {
 	UpdateLastSync(twitterUserId int64, lastTweetId int64, lastSync time.Time) error
 }
 
-type synchroniser struct {
-	tweetClient TweetHTTPClient
-	tweetDAO    tweetSyncStorage
+type tweetSyncType interface {
+	StoreTweetsByUser(userId int64, lastTweetId int64) ([]Tweet, error)
 }
 
-func newSynchroniser(service TweetHTTPClient, dao tweetSyncStorage) *synchroniser {
+type synchroniser struct {
+	tweetDAO    tweetSyncStorage
+	tweetSync   tweetSyncType
+}
+
+func newSynchroniser(dao tweetSyncStorage, tweetSync tweetSyncType) *synchroniser {
 	return &synchroniser{
-		tweetClient: service,
-		tweetDAO:    dao,
+		tweetDAO:  dao,
+		tweetSync: tweetSync,
 	}
 }
 
@@ -29,17 +32,17 @@ func (s synchroniser) Start() {
 	log.Println("Starting Synchroniser")
 	ticker := time.NewTicker(time.Minute * 10)
 
-	s.begin()
+	s.synchronise()
 
 	for {
 		select {
 		case <-ticker.C:
-			s.begin()
+			s.synchronise()
 		}
 	}
 }
 
-func (s synchroniser) begin() {
+func (s synchroniser) synchronise() {
 	log.Println("Starting synchronisation cycle")
 	syncList, err := s.tweetDAO.GetDueSyncList()
 
@@ -52,37 +55,17 @@ func (s synchroniser) begin() {
 
 	for _, sync := range syncList {
 		lastTweetId := sync.LastTweetId
-		tweets, err := s.tweetClient.GetTimeLine(TimelineConfig{UserId: sync.UserID, StartFromTweetID: sync.LastTweetId})
+		tweets, storeTweetsErr := s.tweetSync.StoreTweetsByUser(sync.UserID, lastTweetId)
 
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		tweetsByUser := make([]Tweet, len(tweets))
-
-		for index, tweet := range tweets {
-			tweetsByUser[index] = newTweetAdapter(&tweet).ToLocalTweet()
-		}
-
-		lastSync := time.Now()
-		err = s.tweetDAO.Save(tweetsByUser)
-
-		if err != nil {
+		if storeTweetsErr != nil {
 			log.Println(err)
 		}
 
-		if len(tweetsByUser) > 0 {
-			sort.Slice(tweetsByUser, func(i, j int) bool {
-				return tweetsByUser[i].ID > tweetsByUser[j].ID
-			})
-			lastTweetId = tweetsByUser[0].ID
+		if len(tweets) > 0 {
+			lastTweetId = tweets[0].ID
 		}
 
-		err = s.tweetDAO.UpdateLastSync(sync.UserID, lastTweetId, lastSync)
-		if err != nil {
-			log.Println(err)
-		}
+		s.tweetDAO.UpdateLastSync(sync.UserID, lastTweetId, time.Now())
 	}
 
 	log.Println("Finished synchronisation cycle")

@@ -1,9 +1,9 @@
 package mocks
 
 type MockTweetsSync struct {
-	MockStoreTweetsByUser func(userId int64) error
+	MockStoreTweetsForFirstTime func(userId int64)
 }
 
-func (m MockTweetsSync) StoreTweetsByUser(userId int64) error {
-	return m.MockStoreTweetsByUser(userId)
+func (m MockTweetsSync) StoreTweetsForFirstTime(userId int64) {
+	m.MockStoreTweetsForFirstTime(userId)
 }

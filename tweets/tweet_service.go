@@ -3,7 +3,6 @@ package tweets
 import (
 	"database/sql"
 	"github.com/dghubble/go-twitter/twitter"
-	"sort"
 	"time"
 )
 
@@ -20,24 +19,24 @@ type TimelineConfig struct {
 
 type TweetHTTPClient interface {
 	GetTimeLine(config TimelineConfig) ([]twitter.Tweet, error)
+	CalculateSentiment(userId int64)
 }
 
 type TweetService struct {
-	client       twitterTimelineClient
 	tweetStorage tweetStorage
-	tweetClient  TweetHTTPClient
 	Synchroniser *synchroniser
+	TweetSync    *tweetSync
 }
 
 func NewTweetService(client twitterTimelineClient, db *sql.DB) *TweetService {
 	dao := newTweetDAO(db)
-	tweetClient := newTweetClient(client)
+	tweetHTTPClient := newTweetClient(client)
+	tweetSynchroniser := newTweetSync(tweetHTTPClient, dao)
 
 	return &TweetService{
-		client:       client,
 		tweetStorage: dao,
-		tweetClient:  tweetClient,
-		Synchroniser: newSynchroniser(tweetClient, dao),
+		Synchroniser: newSynchroniser(dao, tweetSynchroniser),
+		TweetSync:    tweetSynchroniser,
 	}
 }
 
@@ -51,31 +50,13 @@ func (t TweetService) GetTweets(userId int64) ([]Tweet, error) {
 	return tweets, nil
 }
 
-func (t TweetService) StoreTweetsByUser(userId int64) error {
-	tweetsByUser, err := t.tweetClient.GetTimeLine(TimelineConfig{UserId: userId})
+func (t TweetService) StoreTweetsForFirstTime(userId int64) {
+	now := time.Now()
+	tweets, err := t.TweetSync.StoreTweetsByUser(userId, 0)
 
 	if err != nil {
-		return err
+		//	@todo do something useful
 	}
 
-	tweets := make([]Tweet, len(tweetsByUser))
-
-	for index, tweet := range tweetsByUser {
-		tweets[index] = newTweetAdapter(&tweet).ToLocalTweet()
-	}
-
-	currentSyncTime := time.Now()
-	err = t.tweetStorage.Save(tweets)
-
-	sort.Slice(tweets, func(i, j int) bool {
-		return tweets[i].ID > tweets[j].ID
-	})
-
-	if err != nil {
-		return err
-	}
-
-	t.tweetStorage.SetLastSync(currentSyncTime, tweets[0])
-
-	return nil
+	t.tweetStorage.SetLastSync(now, tweets[0])
 }

@@ -1,6 +1,8 @@
 package tweets
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/dghubble/go-twitter/twitter"
@@ -37,4 +39,16 @@ func (t tweetClient) GetTimeLine(config TimelineConfig) ([]twitter.Tweet, error)
 	}
 
 	return tweets, nil
+}
+
+func (t tweetClient) CalculateSentiment(userId int64) {
+	jsonBody, _ := json.Marshal(map[string]int64{"user_id": userId})
+
+	response, err := http.Post("http://localhost:8001/user/sentiment/calculate", "application/json", bytes.NewBuffer(jsonBody))
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	defer response.Body.Close()
 }

@@ -76,7 +76,7 @@ func (t tweetDAO) Save(tweets []Tweet) error {
 
 func (t tweetDAO) GetAll(userId int64) ([]Tweet, error) {
 	log.Println("Fetching tweets from the database")
-	rows, err := t.db.Query("SELECT * FROM tweet WHERE user_id = $1", userId)
+	rows, err := t.db.Query("SELECT id, text, user_id, created_at, favourite_count, retweet_count, (positive_score - negative_score) * 100 AS sentiment_score FROM tweet WHERE user_id = $1", userId)
 
 	if err != nil {
 		return nil, err
@@ -86,8 +86,10 @@ func (t tweetDAO) GetAll(userId int64) ([]Tweet, error) {
 
 	for rows.Next() {
 		var tweet Tweet
-		err = rows.Scan(&tweet.ID, &tweet.Text, &tweet.UserID, &tweet.CreatedAt, &tweet.FavouriteCount, &tweet.RetweetCount)
+
+		err = rows.Scan(&tweet.ID, &tweet.Text, &tweet.UserID, &tweet.CreatedAt, &tweet.FavouriteCount, &tweet.RetweetCount, &tweet.SentimentScore)
 		if err != nil {
+			log.Println(err)
 			return nil, err
 		}
 

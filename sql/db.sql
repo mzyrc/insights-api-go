@@ -17,11 +17,11 @@ ALTER TABLE usr
 -- user_following
 CREATE TABLE IF NOT EXISTS usr_following (
                                              user_id         integer NOT NULL
-                                             CONSTRAINT usr_following_usr_id_fk
-                                             REFERENCES usr,
+                                                 CONSTRAINT usr_following_usr_id_fk
+                                                     REFERENCES usr,
                                              twitter_user_id bigint  NOT NULL,
                                              created_at      timestamp WITH TIME ZONE DEFAULT NOW()
-    );
+);
 
 ALTER TABLE usr_following
     OWNER TO insights_user;
@@ -39,8 +39,12 @@ CREATE TABLE tweet (
                        text            text        NOT NULL,
                        user_id         bigint      NOT NULL,
                        created_at      timestamptz NOT NULL,
-                       favourite_count int DEFAULT NULL,
-                       retweet_count   int DEFAULT NULL
+                       favourite_count int             DEFAULT NULL,
+                       retweet_count   int             DEFAULT NULL,
+                       positive_score  numeric(20, 19) DEFAULT NULL,
+                       negative_score  numeric(20, 19) DEFAULT NULL,
+                       neutral_score   numeric(20, 19) DEFAULT NULL,
+                       mixed_score     numeric(20, 19) DEFAULT NULL
 );
 
 CREATE INDEX tweet_user_id_index

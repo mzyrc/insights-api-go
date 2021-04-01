@@ -1,14 +1,30 @@
 package tweets
 
-import "github.com/dghubble/go-twitter/twitter"
+import (
+	"database/sql"
+	"encoding/json"
+	"github.com/dghubble/go-twitter/twitter"
+)
+
+type NullableFloat64 struct {
+	sql.NullFloat64
+}
+
+func (nf *NullableFloat64) MarshalJSON() ([]byte, error) {
+	if !nf.Valid {
+		return []byte("null"), nil
+	}
+	return json.Marshal(nf.Float64)
+}
 
 type Tweet struct {
-	ID             int64  `json:"id"`
-	CreatedAt      string `json:"created_at"`
-	Text           string `json:"text"`
-	UserID         int64  `json:"user_id"`
-	FavouriteCount int    `json:"favourite_count"`
-	RetweetCount   int    `json:"retweet_count"`
+	ID             int64           `json:"id"`
+	CreatedAt      string          `json:"created_at"`
+	Text           string          `json:"text"`
+	UserID         int64           `json:"user_id"`
+	FavouriteCount int             `json:"favourite_count"`
+	RetweetCount   int             `json:"retweet_count"`
+	SentimentScore NullableFloat64 `json:"sentiment_score"`
 }
 
 type tweetAdapter struct {

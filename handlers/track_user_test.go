@@ -80,8 +80,8 @@ func TestTrackUserHandler(t *testing.T) {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockTrackedUserDAO := MockTrackedUserDAO{mockCreate: testCase.mockCreate}
 			mockTweetSync := mocks.MockTweetsSync{
-				MockStoreTweetsByUser: func(userId int64) error {
-					return nil
+				MockStoreTweetsForFirstTime: func(userId int64) {
+
 				},
 			}
 

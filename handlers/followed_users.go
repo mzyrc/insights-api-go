@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"errors"
+	"github.com/dghubble/go-twitter/twitter"
 	"insights-api/user"
 	"net/http"
 )
@@ -8,6 +10,12 @@ import (
 type trackedUsersDAO interface {
 	GetUsers(userId int) ([]int64, error)
 }
+
+type userLookUpService interface {
+	GetUsers(userIdList []int64) ([]twitter.User, error)
+}
+
+var UnexpectedError = errors.New("unexpected cant find user error")
 
 func GetTrackedUsersHandler(trackedUserDAO trackedUsersDAO, service TwitterUserService) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
@@ -23,18 +31,24 @@ func GetTrackedUsersHandler(trackedUserDAO trackedUsersDAO, service TwitterUserS
 			return
 		}
 
-		twitterUsers, err := service.GetUsers(userIdList)
-
-		if err != nil {
-			// @todo do something useful here
-		}
-
-		trackedUsers := make([]user.LocalUser, len(twitterUsers))
-
-		for index, twitterUser := range twitterUsers {
-			trackedUsers[index] = user.NewUserAdapter(twitterUser).ToLocalUser()
-		}
+		trackedUsers, err := getTrackedUsers(service, userIdList)
 
 		respondWithSuccess(writer, http.StatusOK, trackedUsers)
 	}
+}
+
+func getTrackedUsers(service userLookUpService, userIdList []int64) ([]user.LocalUser, error) {
+	twitterUsers, err := service.GetUsers(userIdList)
+
+	if err != nil {
+		// @todo do something useful
+		return nil, UnexpectedError
+	}
+
+	trackedUsers := make([]user.LocalUser, len(twitterUsers))
+
+	for index, twitterUser := range twitterUsers {
+		trackedUsers[index] = user.NewUserAdapter(twitterUser).ToLocalUser()
+	}
+	return trackedUsers, nil
 }
